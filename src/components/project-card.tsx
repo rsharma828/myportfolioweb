@@ -100,9 +100,9 @@ export function ProjectCard({
         <div
           className={cn(
             "relative w-full bg-transparent flex items-center justify-center overflow-hidden",
-            // When rotating portrait to landscape, use landscape aspect ratio
+            // On mobile: rotate portrait to landscape; on tablet/desktop: show natural orientation
             forceRotate && shouldRotate
-              ? "aspect-video"
+              ? "aspect-video sm:aspect-[9/16] sm:min-h-[350px]"
               : isPortrait === true && !forceRotate
               ? "aspect-[9/16] min-h-[350px]"
               : "aspect-video"
@@ -119,9 +119,9 @@ export function ProjectCard({
               preload="metadata"
               className={cn(
                 "pointer-events-none",
-                // Apply rotation and proper sizing for rotated portrait videos
+                // Apply rotation only on mobile (< 640px), natural orientation on tablet/desktop
                 forceRotate && shouldRotate
-                  ? "rotate-90 object-cover"
+                  ? "rotate-90 object-cover sm:rotate-0 sm:object-contain sm:w-full sm:h-full"
                   : isPortrait === true && !forceRotate
                   ? "w-full h-full object-contain"
                   : "w-full h-full object-cover object-top"
@@ -129,7 +129,7 @@ export function ProjectCard({
               style={
                 forceRotate && shouldRotate
                   ? {
-                      // Calculate proper dimensions for rotated video
+                      // Calculate proper dimensions for rotated video on mobile only
                       // When rotated 90deg, width and height swap
                       width: "auto",
                       height: "calc(100% * 1.778)", // 16:9 aspect ratio scaled to fill

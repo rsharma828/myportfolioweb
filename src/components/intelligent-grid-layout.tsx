@@ -95,6 +95,7 @@ export function IntelligentGridLayout({ children, className }: IntelligentGridLa
     };
 
     const COLUMNS = getColumnCount();
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
     const positions = new Map<number, GridPosition>();
     
     // Build array of items with their orientations
@@ -104,8 +105,9 @@ export function IntelligentGridLayout({ children, className }: IntelligentGridLa
       const forceRotate = child?.props?.children?.props?.forceRotate || false;
       const detectedOrientation = videoOrientations.get(i) ?? null;
       
-      // If forceRotate is true, treat as landscape (not portrait)
-      const effectiveOrientation = forceRotate ? false : detectedOrientation;
+      // On mobile: if forceRotate is true, treat as landscape (not portrait)
+      // On tablet/desktop: show natural orientation even if forceRotate is true
+      const effectiveOrientation = (forceRotate && isMobile) ? false : detectedOrientation;
       
       items.push({
         index: i,
@@ -262,8 +264,10 @@ export function IntelligentGridLayout({ children, className }: IntelligentGridLa
         const forceRotate = reactChild?.props?.children?.props?.forceRotate || false;
         const detectedIsPortrait = videoOrientations.get(index) === true;
         
-        // If forceRotate is true, treat as landscape
-        const effectiveIsPortrait = forceRotate ? false : detectedIsPortrait;
+        // On mobile: if forceRotate is true, treat as landscape
+        // On tablet/desktop: show natural orientation (portrait spans 2 rows)
+        const isMobileView = typeof window !== 'undefined' && window.innerWidth < 640;
+        const effectiveIsPortrait = (forceRotate && isMobileView) ? false : detectedIsPortrait;
         const rowSpan = effectiveIsPortrait ? 2 : 1;
         
         return (

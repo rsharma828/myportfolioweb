@@ -56,8 +56,10 @@ export function VideoModal({
   const orientation = isPortrait !== null ? isPortrait : detectedOrientation;
   const isPortraitVideo = orientation === true;
   
-  // When force rotating, treat as landscape in modal
-  const effectiveIsPortrait = forceRotate ? false : isPortraitVideo;
+  // On mobile: when force rotating, treat as landscape
+  // On tablet/desktop: show natural portrait orientation
+  const effectiveIsPortraitMobile = forceRotate ? false : isPortraitVideo;
+  const effectiveIsPortraitDesktop = isPortraitVideo;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -67,7 +69,9 @@ export function VideoModal({
           "border-0 shadow-2xl rounded-lg sm:rounded-2xl",
           "bg-gradient-to-b from-background to-background/95",
           "backdrop-blur-xl",
-          effectiveIsPortrait ? "max-w-sm sm:max-w-md" : "max-w-4xl sm:max-w-5xl"
+          // Mobile: landscape if rotated, tablet/desktop: portrait if natural
+          effectiveIsPortraitMobile ? "max-w-sm" : "max-w-4xl",
+          forceRotate && isPortraitVideo ? "sm:max-w-sm sm:max-w-md" : "sm:max-w-4xl sm:max-w-5xl"
         )}
         onInteractOutside={(e) => e.preventDefault()}
       >
@@ -86,7 +90,10 @@ export function VideoModal({
             <div className={cn(
               "relative w-full bg-gradient-to-br from-gray-900 via-black to-gray-900",
               "flex items-center justify-center",
-              effectiveIsPortrait 
+              // Mobile: landscape if rotated, tablet/desktop: portrait if natural
+              forceRotate && isPortraitVideo
+                ? "aspect-video sm:aspect-[9/16] min-h-[250px] sm:min-h-[400px] sm:min-h-[500px]"
+                : effectiveIsPortraitDesktop 
                 ? "aspect-[9/16] min-h-[400px] sm:min-h-[500px]" 
                 : "aspect-video min-h-[250px] sm:min-h-[400px]"
             )}>
@@ -98,7 +105,10 @@ export function VideoModal({
                 autoPlay
                 className={cn(
                   "relative z-10 w-full h-full",
-                  forceRotate && isPortraitVideo ? "rotate-90 object-cover" : "object-contain"
+                  // Rotate only on mobile, natural orientation on tablet/desktop
+                  forceRotate && isPortraitVideo 
+                    ? "rotate-90 object-cover sm:rotate-0 sm:object-contain" 
+                    : "object-contain"
                 )}
                 playsInline
                 style={
