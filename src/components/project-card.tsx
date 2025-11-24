@@ -22,6 +22,7 @@ interface Props {
   }[];
   className?: string;
   forceRotate?: boolean; // New prop to force rotation for specific videos
+  ratio?: "landscape" | "portrait"; // Explicit ratio flag
 }
 
 export function ProjectCard({
@@ -29,6 +30,7 @@ export function ProjectCard({
   video,
   image,
   forceRotate = false,
+  ratio,
 }: Props) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPortrait, setIsPortrait] = useState<boolean | null>(null);
@@ -170,6 +172,7 @@ export function ProjectCard({
           title={title}
           videoUrl={video}
           isPortrait={isPortrait}
+          ratio={ratio}
           forceRotate={forceRotate}
         />
       )}

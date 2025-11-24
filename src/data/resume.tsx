@@ -70,16 +70,37 @@ export const DATA = {
       title: "Showreel",
       video:
         "https://tavus-videos-store.s3.ap-southeast-2.amazonaws.com/lv_0_20251113205412.mp4",
+      ratio: "landscape" as const,
+    },
+    {
+      title: "Project GT650",
+      video:
+        "https://tavus-videos-store.s3.ap-southeast-2.amazonaws.com/project-990trim.mp4",
+      ratio: "portrait" as const,
+    },
+    {
+      title: "Parashnath",
+      video:
+        "https://tavus-videos-store.s3.ap-southeast-2.amazonaws.com/Project-113.mp4",
+      ratio: "portrait" as const,
+    },
+    {
+      title: "Me",
+      video:
+        "https://tavus-videos-store.s3.ap-southeast-2.amazonaws.com/lv_0_20251117131533.mp4",
+      ratio: "landscape" as const,
     },
     {
       title: "Nature Video",
       video:
         "https://tavus-videos-store.s3.ap-southeast-2.amazonaws.com/aditya_vid.mp4",
+      ratio: "portrait" as const,
     },
     {
       title: "Personal edit",
       video:
         "https://tavus-videos-store.s3.ap-southeast-2.amazonaws.com/aditya_vid2.mp4",
+      ratio: "landscape" as const,
     },
   ],
 } as const;

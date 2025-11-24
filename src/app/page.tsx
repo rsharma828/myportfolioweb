@@ -35,6 +35,7 @@ type Project = {
   image?: string;
   video?: string;
   projectTag: string;
+  ratio?: "landscape" | "portrait";
 };
 
 // Define props interface for ProjectsSection
@@ -306,13 +307,121 @@ export default function Page() {
 
 function ProjectsSection({ projects }: ProjectsSectionProps) {
   const [showAll, setShowAll] = useState(false);
-  // Calculate projects needed for exactly 3 rows in 3-column grid
-  // Portrait videos span 2 rows, landscape span 1 row
-  // Worst case (all landscape): 3 rows × 3 columns = 9 projects
-  // Best case with portraits: 1 portrait (rows 1-2) + 2 landscape (row 1) + 2 landscape (row 2) + 3 landscape (row 3) = 8 projects
-  // To ensure exactly 3 rows are filled, we use 8 projects (conservative)
-  // This accounts for portrait videos taking 2 row spaces
-  const INITIAL_DISPLAY_COUNT = 8;
+  
+  // Calculate how many items fit in a 3x3 grid (3 rows max)
+  // Strategy: Simulate placement to see what fits within 3 rows
+  const calculate3x3GridCapacity = (items: readonly Project[] | Project[]): number => {
+    const MAX_ROWS = 3;
+    const COLUMNS = 3;
+    
+    // Simulate grid occupancy
+    const occupied: boolean[][] = Array(MAX_ROWS).fill(null).map(() => Array(COLUMNS).fill(false));
+    
+    const canPlaceItem = (isPortrait: boolean, startRow: number, col: number): boolean => {
+      const rowSpan = isPortrait ? 2 : 1;
+      
+      // Check if it fits within row limit
+      if (startRow + rowSpan > MAX_ROWS) {
+        return false;
+      }
+      
+      // Check if all required cells are free
+      for (let r = startRow; r < startRow + rowSpan; r++) {
+        if (occupied[r][col]) {
+          return false;
+        }
+      }
+      
+      return true;
+    };
+    
+    const placeItem = (isPortrait: boolean, startRow: number, col: number) => {
+      const rowSpan = isPortrait ? 2 : 1;
+      for (let r = startRow; r < startRow + rowSpan; r++) {
+        occupied[r][col] = true;
+      }
+    };
+    
+    let itemCount = 0;
+    
+    // Always place the first item (Showreel) first at row 0, col 0
+    if (items.length > 0) {
+      const firstItem = items[0];
+      const isPortrait = firstItem.ratio === "portrait";
+      if (canPlaceItem(isPortrait, 0, 0)) {
+        placeItem(isPortrait, 0, 0);
+        itemCount++;
+      }
+    }
+    
+    // Separate remaining portraits and landscapes
+    const portraits: Array<{ ratio?: "landscape" | "portrait" }> = [];
+    const landscapes: Array<{ ratio?: "landscape" | "portrait" }> = [];
+    
+    // Skip first item (already placed)
+    items.slice(1).forEach((item) => {
+      if (item.ratio === "portrait") {
+        portraits.push(item);
+      } else {
+        landscapes.push(item);
+      }
+    });
+    
+    // Place portrait videos first (they're harder to place)
+    for (const portrait of portraits) {
+      let placed = false;
+      
+      // Try rows 0-1 first
+      for (let col = 0; col < COLUMNS && !placed; col++) {
+        if (canPlaceItem(true, 0, col)) {
+          placeItem(true, 0, col);
+          placed = true;
+          itemCount++;
+        }
+      }
+      
+      // Try rows 1-2 if rows 0-1 are full
+      if (!placed) {
+        for (let col = 0; col < COLUMNS && !placed; col++) {
+          if (canPlaceItem(true, 1, col)) {
+            placeItem(true, 1, col);
+            placed = true;
+            itemCount++;
+          }
+        }
+      }
+      
+      // If can't place, stop (exceeds 3-row limit)
+      if (!placed) {
+        break;
+      }
+    }
+    
+    // Fill remaining spaces with landscape videos
+    for (const landscape of landscapes) {
+      let placed = false;
+      
+      // Fill row by row, left to right
+      for (let row = 0; row < MAX_ROWS && !placed; row++) {
+        for (let col = 0; col < COLUMNS && !placed; col++) {
+          if (canPlaceItem(false, row, col)) {
+            placeItem(false, row, col);
+            placed = true;
+            itemCount++;
+          }
+        }
+      }
+      
+      // If can't place, stop
+      if (!placed) {
+        break;
+      }
+    }
+    
+    return itemCount;
+  };
+  
+  const INITIAL_DISPLAY_COUNT = calculate3x3GridCapacity(projects);
   const displayedProjects = showAll
     ? projects
     : projects.slice(0, INITIAL_DISPLAY_COUNT);
@@ -332,6 +441,7 @@ function ProjectsSection({ projects }: ProjectsSectionProps) {
               video={project.video}
               links={project.links}
               projectTag={project.projectTag}
+              ratio={project.ratio}
               forceRotate={id === 0} // Force rotate only the first video (Showreel)
             />
           </BlurFade>
