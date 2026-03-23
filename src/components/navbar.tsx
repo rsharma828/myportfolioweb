@@ -1,5 +1,6 @@
 import { Dock, DockIcon } from "@/components/magicui/dock";
 import { ModeToggle } from "@/components/mode-toggle";
+import { Icons } from "@/components/icons";
 import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -7,12 +8,25 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { DATA } from "@/data/resume";
 import { cn } from "@/lib/utils";
-import { BriefcaseIcon, GraduationCapIcon, HomeIcon, NotebookIcon, WrenchIcon } from "lucide-react";
-import Link from "next/link";
+import { BriefcaseIcon, FolderKanbanIcon, HomeIcon, NotebookIcon, WrenchIcon } from "lucide-react";
+import { Link } from "next-view-transitions";
 
-export default function Navbar() {
+const socialOrder = [
+  { name: "GitHub" as const, icon: Icons.github },
+  { name: "LinkedIn" as const, icon: Icons.linkedin },
+  { name: "X" as const, icon: Icons.x },
+  { name: "Youtube" as const, icon: Icons.youtube },
+];
+
+type Social = {
+  GitHub: string;
+  LinkedIn: string;
+  X: string;
+  Youtube: string;
+};
+
+export default function Navbar({ social }: { social: Social }) {
   return (
     <div className="pointer-events-none fixed inset-x-0 bottom-0 z-30 mx-auto mb-4 flex origin-bottom h-full max-h-14">
       <div className="fixed bottom-0 inset-x-0 h-16 w-full bg-background to-transparent backdrop-blur-lg [-webkit-mask-image:linear-gradient(to_top,black,transparent)] dark:bg-background"></div>
@@ -39,6 +53,24 @@ export default function Navbar() {
           <Tooltip>
             <TooltipTrigger asChild>
               <Link
+                href="/projects"
+                className={cn(
+                  buttonVariants({ variant: "ghost", size: "icon" }),
+                  "size-12"
+                )}
+              >
+                <FolderKanbanIcon className="size-4" />
+              </Link>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Projects</p>
+            </TooltipContent>
+          </Tooltip>
+        </DockIcon>
+        <DockIcon>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Link
                 href="/blog"
                 className={cn(
                   buttonVariants({ variant: "ghost", size: "icon" }),
@@ -53,7 +85,7 @@ export default function Navbar() {
             </TooltipContent>
           </Tooltip>
         </DockIcon>
-        
+
         <DockIcon>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -72,7 +104,7 @@ export default function Navbar() {
             </TooltipContent>
           </Tooltip>
         </DockIcon>
-        
+
         <DockIcon>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -91,28 +123,32 @@ export default function Navbar() {
             </TooltipContent>
           </Tooltip>
         </DockIcon>
-        
+
         <Separator orientation="vertical" className="h-full" />
-        {Object.entries(DATA.contact.social).map(([name, social]) => (
-          <DockIcon key={name}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link
-                  href={social.url}
-                  className={cn(
-                    buttonVariants({ variant: "ghost", size: "icon" }),
-                    "size-12"
-                  )}
-                >
-                  <social.icon className="size-4" />
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>{name}</p>
-              </TooltipContent>
-            </Tooltip>
-          </DockIcon>
-        ))}
+        {socialOrder.map(({ name, icon: Icon }) => {
+          const url = social[name];
+          if (!url) return null;
+          return (
+            <DockIcon key={name}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Link
+                    href={url}
+                    className={cn(
+                      buttonVariants({ variant: "ghost", size: "icon" }),
+                      "size-12"
+                    )}
+                  >
+                    <Icon className="size-4" />
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{name}</p>
+                </TooltipContent>
+              </Tooltip>
+            </DockIcon>
+          );
+        })}
         <Separator orientation="vertical" className="h-full py-2" />
         <DockIcon>
           <Tooltip>

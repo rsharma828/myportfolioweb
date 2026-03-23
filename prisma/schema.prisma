@@ -1,0 +1,122 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Profile {
+  id             String @id @default("singleton")
+  name           String
+  initials       String @default("")
+  siteUrl        String @default("")
+  description    String
+  /** Rich HTML for hero / about; falls back to `description` when empty */
+  bioHtml        String   @default("") @db.Text
+  avatarUrl      String @default("")
+  location       String @default("")
+  locationLink   String @default("")
+  email          String @default("")
+  tel            String @default("")
+  socialGithub   String @default("")
+  socialLinkedin String @default("")
+  socialX        String @default("")
+  socialYoutube  String @default("")
+  updatedAt      DateTime @updatedAt
+}
+
+model Project {
+  id          String        @id @default(cuid())
+  slug        String        @unique
+  title       String
+  tagline     String        @default("")
+  description String
+  /** Main case-study content (HTML from admin editor) */
+  body        String        @default("") @db.Text
+  projectTag  String        @default("")
+  coverImage  String        @default("")
+  video       String        @default("")
+  gallery     String[]      @default([])
+  techStack   String[]      @default([])
+  role        String        @default("")
+  timeline    String        @default("")
+  liveUrl     String        @default("")
+  repoUrl     String        @default("")
+  challenge   String        @default("")
+  solution    String        @default("")
+  outcome     String        @default("")
+  status      ProjectStatus @default(LIVE)
+  featured    Boolean       @default(false)
+  sortOrder   Int           @default(0)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+enum ProjectStatus {
+  LIVE
+  ARCHIVED
+  WIP
+}
+
+model BlogPost {
+  id             String   @id @default(cuid())
+  slug           String   @unique
+  title          String
+  summary        String
+  body           String   @db.Text
+  thumbnailImage String   @default("")
+  publishedAt    DateTime @default(now())
+  tags           String[] @default([])
+  featured       Boolean  @default(false)
+  published      Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model WorkExperience {
+  id          String   @id @default(cuid())
+  company     String
+  title       String
+  href        String   @default("")
+  logoUrl     String   @default("")
+  location    String   @default("")
+  description String   @default("")
+  startDate   String
+  endDate     String   @default("Present")
+  badges      String[] @default([])
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Education {
+  id         String   @id @default(cuid())
+  school     String
+  degree     String
+  href       String   @default("")
+  logoUrl    String   @default("")
+  startDate  String
+  endDate    String
+  gpa        String   @default("")
+  percentage String   @default("")
+  sortOrder  Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model SkillCategory {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  skills    String[]
+  sortOrder Int      @default(0)
+}
+
+model Service {
+  id          String @id @default(cuid())
+  title       String
+  description String
+  price       String
+  sortOrder   Int    @default(0)
+}

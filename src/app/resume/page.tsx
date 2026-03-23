@@ -1,66 +1,58 @@
-"use client";
-
 import BlurFade from "@/components/magicui/blur-fade";
 import { ResumeCard } from "@/components/resume-card";
-import { DATA } from "@/data/resume";
+import { getEducation, getWorkExperience } from "@/lib/db/resume";
 import Link from "next/link";
 
-const BLUR_FADE_DELAY = 0.04;
+export const revalidate = 60;
 
-export default function ResumePage() {
+const S = 0.025;
+
+export default async function ResumePage() {
+  const [work, education] = await Promise.all([getWorkExperience(), getEducation()]);
+
   return (
     <main className="flex flex-col min-h-[100dvh] space-y-10 max-w-4xl mx-auto px-4 py-10">
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold mb-4">My Resume</h1>
-        <p className="text-muted-foreground">
-          My professional experience and educational background
-        </p>
+        <p className="text-muted-foreground">My professional experience and educational background</p>
       </div>
 
       <section id="work">
         <div className="flex min-h-0 flex-col gap-y-3">
-          <BlurFade delay={BLUR_FADE_DELAY}>
+          <BlurFade delay={S}>
             <h2 className="text-2xl font-bold">Work Experience</h2>
           </BlurFade>
-          {DATA.work.map((work, id) => (
-            <BlurFade
-              key={work.company}
-              delay={BLUR_FADE_DELAY * 2 + id * 0.05}
-            >
+          {work.map((w, id) => (
+            <BlurFade key={w.company} delay={S * 2 + id * 0.03}>
               <ResumeCard
-                key={work.company}
-                logoUrl={work.logoUrl}
-                altText={work.company}
-                title={work.company}
-                subtitle={work.title}
-                href={work.href}
-                badges={work.badges}
-                period={`${work.start} - ${work.end ?? "Present"}`}
-                description={work.description}
+                logoUrl={w.logoUrl}
+                altText={w.company}
+                title={w.company}
+                subtitle={w.title}
+                href={w.href}
+                badges={w.badges}
+                period={`${w.startDate} - ${w.endDate ?? "Present"}`}
+                description={w.description}
               />
             </BlurFade>
           ))}
         </div>
       </section>
-      
+
       <section id="education">
         <div className="flex min-h-0 flex-col gap-y-3">
-          <BlurFade delay={BLUR_FADE_DELAY * 3}>
+          <BlurFade delay={S * 2}>
             <h2 className="text-2xl font-bold">Education</h2>
           </BlurFade>
-          {DATA.education.map((education, id) => (
-            <BlurFade
-              key={education.school}
-              delay={BLUR_FADE_DELAY * 4 + id * 0.05}
-            >
+          {education.map((ed, id) => (
+            <BlurFade key={ed.school} delay={S * 2 + id * 0.03}>
               <ResumeCard
-                key={education.school}
-                href={education.href}
-                logoUrl={education.logoUrl}
-                altText={education.school}
-                title={education.school}
-                period={`${education.start} - ${education.end}`}
-                description={education.degree}
+                href={ed.href}
+                logoUrl={ed.logoUrl}
+                altText={ed.school}
+                title={ed.school}
+                period={`${ed.startDate} - ${ed.endDate}`}
+                description={ed.degree}
               />
             </BlurFade>
           ))}
@@ -74,4 +66,4 @@ export default function ResumePage() {
       </div>
     </main>
   );
-} 
+}
